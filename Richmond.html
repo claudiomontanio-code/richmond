@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <title>RICHMOND | The Selection</title>
+    <style>
+        body { margin: 0; background: #0a0a0a; color: #d4af37; font-family: 'Times New Roman', serif; overflow: hidden; }
+        #overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; display: flex; flex-direction: column; justify-content: center; align-items: center; background: rgba(0,0,0,0.8); }
+        .hidden { display: none !important; }
+        #question-box { text-align: center; max-width: 600px; }
+    </style>
+</head>
+<body>
+
+    <div id="overlay">
+        <div id="question-box">
+            <h1 id="title">RICHMOND</h1>
+            <p id="prompt">Sei pronto a prendere il timone?</p>
+            <div id="choices"></div>
+        </div>
+    </div>
+
+    <script type="module">
+        import * as THREE from 'https://cdn.skypack.dev/three@0.136.0';
+        
+        let fase = 0;
+        let rotta = 0; // 0 = Neutro, >0 = Lux, <0 = Comune
+
+        async function caricaDomande() {
+            const response = await fetch('domande_sistema.json');
+            return await response.json();
+        }
+
+        function processaRisposta(peso) {
+            fase++;
+            // Logica del "Kill Switch"
+            if (fase === 1 && peso === 1) {
+                alert("Il timone si spezza. Naufragio immediato. Sei fuori.");
+                location.reload();
+                return;
+            }
+            
+            rotta += (peso - 3); // Sposta la rotta basandosi sul peso
+            
+            if (fase >= 3) {
+                concludiViaggio();
+            } else {
+                aggiornaScena();
+            }
+        }
+
+        function concludiViaggio() {
+            if (rotta > 0) alert("Benvenuto nell'Isola Felice.");
+            else alert("Sei approdato in un molo industriale. Sei un intruso?");
+        }
+
+        // Qui verrebbe inizializzato il mondo 3D con Three.js
+        console.log("Motore Richmond inizializzato.");
+    </script>
+</body>
+</html>
