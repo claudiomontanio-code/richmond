@@ -82,6 +82,82 @@
     <style>
         body { margin: 0; background-color: #050505; color: #d4af37; font-family: 'Times New Roman', serif; overflow: hidden; }
         #canvas-container { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 0; }
+        #main-container { 
+            position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+            width: 90%; max-width: 500px; text-align: center; z-index: 1;
+        }
+        .symbol { font-size: 4rem; cursor: pointer; margin-bottom: 20px; transition: 0.3s; }
+        .symbol:hover { transform: scale(1.1); }
+        button { display: block; width: 100%; margin: 10px 0; padding: 15px; background: rgba(0,0,0,0.8); color: #d4af37; border: 1px solid #d4af37; cursor: pointer; font-size: 1rem; }
+        button:hover { background: #d4af37; color: #000; }
+    </style>
+</head>
+<body>
+    <div id="canvas-container"></div>
+    <div id="main-container">
+        <div id="start-screen">
+            <div class="symbol" onclick="iniziaSelezione()">⚓</div>
+            <h1>RICHMOND</h1>
+            <p>IL TIMONE È IL DESTINO.</p>
+        </div>
+    </div>
+
+    <script type="module">
+        import * as THREE from 'https://unpkg.com/three@0.150.0/build/three.module.js';
+        const scene = new THREE.Scene();
+        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+        const renderer = new THREE.WebGLRenderer({ alpha: true });
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        document.getElementById('canvas-container').appendChild(renderer.domElement);
+        const light = new THREE.DirectionalLight(0xffffff, 1);
+        light.position.set(1, 1, 1);
+        scene.add(light);
+        camera.position.z = 5;
+        const geometry = new THREE.TorusKnotGeometry(1, 0.3, 100, 16);
+        const material = new THREE.MeshStandardMaterial({ color: 0xd4af37 });
+        const timone = new THREE.Mesh(geometry, material);
+        scene.add(timone);
+        function animate() { requestAnimationFrame(animate); timone.rotation.y += 0.005; renderer.render(scene, camera); }
+        animate();
+        window.aggiornaMondo = (p) => material.color.setHex(p === 5 ? 0x00ff00 : (p === 1 ? 0xff0000 : 0xd4af37));
+    </script>
+
+    <script>
+        const poolDomande = Array.from({length: 100}, (_, i) => ({
+            t: `Domanda #${i+1}: La tua visione del successo?`, o: {"Base": 1, "Media": 3, "Elite": 5}
+        }));
+        let estratte = [], indice = 0, punteggio = 0;
+
+        window.iniziaSelezione = () => {
+            estratte = poolDomande.sort(() => 0.5 - Math.random()).slice(0, 3);
+            document.getElementById('start-screen').remove();
+            mostraDomanda();
+        }
+
+        function mostraDomanda() {
+            const container = document.getElementById('main-container');
+            const d = estratte[indice];
+            container.innerHTML = `<h2>${d.t}</h2>` + 
+                Object.entries(d.o).map(([k, v]) => `<button onclick="gestisci(${v})">${k}</button>`).join('');
+        }
+
+        window.gestisci = (peso) => {
+            if (indice === 0 && peso === 1) { document.getElementById('main-container').innerHTML = "<h1>NAUFRAGIO</h1>"; return; }
+            punteggio += peso; indice++;
+            window.aggiornaMondo(peso);
+            if (indice < 3) mostraDomanda();
+            else document.getElementById('main-container').innerHTML = `<h1>CONCLUSO</h1><p>Risultato: ${punteggio}</p>`;
+        }
+    </script>
+</body>
+</html><!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <title>RICHMOND | The Selection</title>
+    <style>
+        body { margin: 0; background-color: #050505; color: #d4af37; font-family: 'Times New Roman', serif; overflow: hidden; }
+        #canvas-container { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 0; }
         #main-container { position: relative; z-index: 1; display: flex; flex-direction: column; justify-content: center; align-items: center; height: 100vh; text-align: center; }
         .symbol { font-size: 4rem; cursor: pointer; margin-bottom: 20px; }
         button { display: block; width: 320px; margin: 8px; padding: 12px; background: rgba(0,0,0,0.8); color: #d4af37; border: 1px solid #d4af37; cursor: pointer; transition: 0.3s; }
