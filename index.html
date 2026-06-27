@@ -2,210 +2,66 @@
 <html lang="it">
 <head>
     <meta charset="UTF-8">
-    <title>RICHMOND</title>
+    <title>RICHMOND | The Selection</title>
     <style>
-        body { 
-            margin: 0; background-color: #050505; color: #d4af37; 
-            font-family: 'Times New Roman', serif; 
-            display: flex; flex-direction: column; justify-content: center; 
-            align-items: center; height: 100vh; text-align: center;
-        }
+        body { margin: 0; background-color: #050505; color: #d4af37; font-family: 'Times New Roman', serif; display: flex; flex-direction: column; justify-content: center; align-items: center; height: 100vh; text-align: center; }
         #main-container { width: 80%; max-width: 600px; }
-        .symbol { font-size: 4rem; cursor: pointer; margin-bottom: 20px; }
-        button { 
-            display: block; width: 100%; margin: 10px 0; padding: 15px; 
-            background: #111; color: #d4af37; border: 1px solid #d4af37; 
-            cursor: pointer; font-size: 1rem;
-        }
+        .symbol { font-size: 4rem; cursor: pointer; margin-bottom: 20px; transition: transform 0.3s; }
+        .symbol:hover { transform: scale(1.1); }
+        button { display: block; width: 100%; margin: 12px 0; padding: 18px; background: #111; color: #d4af37; border: 1px solid #d4af37; cursor: pointer; font-size: 1.1rem; transition: 0.3s; }
         button:hover { background: #d4af37; color: #000; }
+        h1, h2 { text-transform: uppercase; letter-spacing: 0.2rem; }
     </style>
 </head>
 <body>
 
     <div id="main-container">
-        <div class="symbol" onclick="avviaRichmond()">⚓</div>
+        <div class="symbol" onclick="iniziaSelezione()">⚓</div>
         <h1 id="title">RICHMOND</h1>
         <p id="subtitle">IL TIMONE È IL DESTINO.</p>
     </div>
 
     <script>
-        const domande = [
-            {
-                testo: "Cosa rappresenta per te il denaro?",
-                opzioni: { "Un mezzo necessario": 1, "Misura dell'efficacia": 3, "Potere di plasmare la realtà": 5 }
-            },
-            {
-                testo: "Di fronte al rischio, come reagisci?",
-                opzioni: { "Cerco sicurezza": 1, "Valuto e agisco": 3, "Il rischio è il mio elemento": 5 }
-            }
+        const poolDomande = [
+            { t: "Cosa rappresenta per te il denaro?", o: {"Mezzo necessario": 1, "Misura di efficacia": 3, "Potere di plasmare la realtà": 5} },
+            { t: "Di fronte al rischio, come reagisci?", o: {"Cerco sicurezza": 1, "Valuto e agisco": 3, "Il rischio è il mio elemento": 5} },
+            { t: "Cosa provi guardando un'opera d'arte?", o: {"Nulla di particolare": 1, "Apprezzo l'estetica": 3, "Analizzo il valore e la storia": 5} },
+            { t: "La solitudine è per te...", o: {"Una paura": 1, "Un momento di pausa": 3, "Il mio stato naturale": 5} },
+            { t: "Cosa cerchi nelle relazioni?", o: {"Conferme": 1, "Collaborazione": 3, "Affinità di visione": 5} }
         ];
 
+        let domandeEstratte = [];
         let indice = 0;
+        let punteggio = 0;
 
-        function avviaRichmond() {
-            document.getElementById('title').style.display = 'none';
-            document.getElementById('subtitle').style.display = 'none';
-            document.querySelector('.symbol').style.display = 'none';
-            mostraDomanda();
+        function iniziaSelezione() {
+            domandeEstratte = poolDomande.sort(() => 0.5 - Math.random()).slice(0, 3);
+            document.getElementById('main-container').innerHTML = "";
+            mostraStep();
         }
 
-        function mostraDomanda() {
-            const container = document.getElementById('main-container');
-            const d = domande[indice];
-            let html = `<h2 style="margin-bottom:30px;">${d.testo}</h2>`;
-            for (let opzione in d.opzioni) {
-                html += `<button onclick="gestisciRisposta(${d.opzioni[opzione]})">${opzione}</button>`;
+        function mostraStep() {
+            const d = domandeEstratte[indice];
+            let html = `<h2>Fase ${indice + 1}/3</h2><p>${d.t}</p>`;
+            for (let k in d.o) html += `<button onclick="rispondi(${d.o[k]})">${k}</button>`;
+            document.getElementById('main-container').innerHTML = html;
+        }
+
+        function rispondi(peso) {
+            if (indice === 0 && peso === 1) {
+                document.getElementById('main-container').innerHTML = "<h1>NAUFRAGIO</h1><p>Non hai il piglio del comandante. Sei fuori.</p>";
+                return;
             }
-            container.innerHTML = html;
-        }
-
-        function gestisciRisposta(peso) {
+            punteggio += peso;
             indice++;
-            if (indice < domande.length) {
-                mostraDomanda();
-            } else {
-                document.getElementById('main-container').innerHTML = "<h1>VIAGGIO CONCLUSO</h1>";
-            }
+            if (indice < 3) mostraStep();
+            else verdetto();
+        }
+
+        function verdetto() {
+            let msg = (punteggio >= 11) ? "<h1>BENVENUTO A RICHMOND</h1>" : "<h1>ACQUE COMUNI</h1>";
+            document.getElementById('main-container').innerHTML = msg + `<p>Risultato finale: ${punteggio}</p>`;
         }
     </script>
-</body>
-</html><script>
-    // 1. Definiamo le domande direttamente nello script per bypassare il blocco fetch/CORS 
-    // se non sei su un server locale professionale, poi passeremo al JSON esterno.
-    const domande = [
-        {
-            "id": 1,
-            "testo": "Cosa rappresenta per te il denaro?",
-            "opzioni": {
-                "Solo un mezzo per comprare il necessario": 1,
-                "Un termometro della propria efficacia": 3,
-                "La libertà assoluta di plasmare la realtà": 5
-            }
-        },
-        {
-            "id": 2,
-            "testo": "Di fronte a un'opportunità ad alto rischio, come reagisci?",
-            "opzioni": {
-                "Cerco rassicurazioni e sicurezze": 1,
-                "Valuto le variabili e procedo": 3,
-                "Il rischio è il mio ambiente naturale": 5
-            }
-        }
-    ];
-
-    let indiceDomanda = 0;
-
-    function avviaRichmond() {
-        const box = document.getElementById('question-box');
-        if (!box) return;
-        
-        // Sostituiamo il contenuto
-        mostraDomanda(domande[indiceDomanda]);
-    }
-
-    function mostraDomanda(d) {
-        const box = document.getElementById('question-box');
-        let html = `<h2 style="color:white; margin-bottom:20px;">${d.testo}</h2>`;
-        
-        for (let testoOpzione in d.opzioni) {
-            html += `<button onclick="gestisciRisposta(${d.opzioni[testoOpzione]})" 
-                     style="display:block; width:100%; margin:10px 0; padding:15px; cursor:pointer; background:#1a1a1a; color:#d4af37; border:1px solid #d4af37;">
-                     ${testoOpzione}</button>`;
-        }
-        box.innerHTML = html;
-    }
-
-    function gestisciRisposta(peso) {
-        console.log("Peso selezionato:", peso);
-        indiceDomanda++;
-        if (indiceDomanda < domande.length) {
-            mostraDomanda(domande[indiceDomanda]);
-        } else {
-            document.getElementById('question-box').innerHTML = "<h1 style='color:#d4af37;'>VIAGGIO CONCLUSO</h1>";
-        }
-    }
-
-    // Event listener corretto per l'ancora
-    document.addEventListener('DOMContentLoaded', () => {
-        const simbolo = document.querySelector('.symbol');
-        if (simbolo) {
-            simbolo.style.cursor = "pointer";
-            simbolo.addEventListener('click', avviaRichmond);
-        }
-    });
-</script><!DOCTYPE html>
-<html lang="it">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>RICHMOND</title>
-    <style>
-        <script>
-    // Carica il file JSON e avvia il primo step
-    let domande = [];
-
-    async function avviaRichmond() {
-        try {
-            const response = await fetch('domande_sistema.json');
-            domande = await response.json();
-            
-            // Nascondi le scritte iniziali
-            document.querySelector('h1').classList.add('hidden');
-            document.querySelector('p').classList.add('hidden');
-            
-            // Mostra la prima domanda
-            mostraDomanda(domande[0]); 
-        } catch (e) {
-            console.error("Errore nel caricamento del JSON:", e);
-        }
-    }
-
-    function mostraDomanda(domanda) {
-        let container = document.querySelector('body');
-        let html = `<h2>${domanda.testo}</h2>`;
-        
-        for (let opzione in domanda.opzioni) {
-            html += `<button onclick="console.log('Scelto: ${opzione}')">${opzione}</button>`;
-        }
-        container.innerHTML = html;
-    }
-
-    // Collega l'evento al tuo simbolo del timone (⚓)
-    document.querySelector('.symbol').style.cursor = "pointer";
-    document.querySelector('.symbol').addEventListener('click', avviaRichmond);
-</script>
-        body {
-            margin: 0;
-            background-color: #050505; /* Nero profondo */
-            color: #d4af37; /* Oro Richmond */
-            font-family: 'Playfair Display', serif;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-        }
-        h1 {
-            font-size: 5rem;
-            letter-spacing: 0.5rem;
-            margin: 0;
-            text-transform: uppercase;
-        }
-        p {
-            font-size: 1.2rem;
-            letter-spacing: 0.2rem;
-            margin-top: 1rem;
-            opacity: 0.7;
-        }
-        .symbol {
-            margin-bottom: 2rem;
-            font-size: 3rem;
-        }
-    </style>
-</head>
-<body>
-    <div class="symbol">⚓</div>
-    <h1>RICHMOND</h1>
-    <p>IL TIMONE È IL DESTINO.</p>
 </body>
 </html>
