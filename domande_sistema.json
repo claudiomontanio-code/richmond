@@ -1,0 +1,38 @@
+[
+  {
+    "id": 1,
+    "testo": "Cosa rappresenta per te il denaro?",
+    "opzioni": {
+      "Solo un mezzo per comprare il necessario": { "peso": 1, "nota": "Industrial Path" },
+      "Un termometro della propria efficacia": { "peso": 3, "nota": "Neutral" },
+      "La libertà assoluta di plasmare la realtà": { "peso": 5, "nota": "Lux Path" }
+    }
+  },
+  {
+    "id": 2,
+    "testo": "Di fronte a un'opportunità ad alto rischio, come reagisci?",
+    "opzioni": {
+      "Cerco rassicurazioni e sicurezze": { "peso": 1, "nota": "Industrial Path" },
+      "Valuto le variabili e procedo": { "peso": 3, "nota": "Neutral" },
+      "Il rischio è il mio ambiente naturale": { "peso": 5, "nota": "Lux Path" }
+    }
+  },
+  {
+    "id": 3,
+    "testo": "Come definiresti il tuo ruolo nel mondo?",
+    "opzioni": {
+      "Sono parte del sistema": { "peso": 1, "nota": "Industrial Path" },
+      "Cerco di migliorare la mia posizione": { "peso": 3, "nota": "Neutral" },
+      "Io sono colui che detta le regole del sistema": { "peso": 5, "nota": "Lux Path" }
+    }
+  },
+  {
+    "id": 4,
+    "testo": "Cosa provi quando vedi qualcuno che ha successo?",
+    "opzioni": {
+      "Invidia o sospetto": { "peso": 1, "nota": "Industrial Path" },
+      "Indifferenza": { "peso": 3, "nota": "Neutral" },
+      "Ammirazione analitica, studio il metodo": { "peso": 5, "nota": "Lux Path" }
+    }
+  }
+]
