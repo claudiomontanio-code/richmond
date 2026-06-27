@@ -1,4 +1,75 @@
-<script>
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <title>RICHMOND</title>
+    <style>
+        body { 
+            margin: 0; background-color: #050505; color: #d4af37; 
+            font-family: 'Times New Roman', serif; 
+            display: flex; flex-direction: column; justify-content: center; 
+            align-items: center; height: 100vh; text-align: center;
+        }
+        #main-container { width: 80%; max-width: 600px; }
+        .symbol { font-size: 4rem; cursor: pointer; margin-bottom: 20px; }
+        button { 
+            display: block; width: 100%; margin: 10px 0; padding: 15px; 
+            background: #111; color: #d4af37; border: 1px solid #d4af37; 
+            cursor: pointer; font-size: 1rem;
+        }
+        button:hover { background: #d4af37; color: #000; }
+    </style>
+</head>
+<body>
+
+    <div id="main-container">
+        <div class="symbol" onclick="avviaRichmond()">⚓</div>
+        <h1 id="title">RICHMOND</h1>
+        <p id="subtitle">IL TIMONE È IL DESTINO.</p>
+    </div>
+
+    <script>
+        const domande = [
+            {
+                testo: "Cosa rappresenta per te il denaro?",
+                opzioni: { "Un mezzo necessario": 1, "Misura dell'efficacia": 3, "Potere di plasmare la realtà": 5 }
+            },
+            {
+                testo: "Di fronte al rischio, come reagisci?",
+                opzioni: { "Cerco sicurezza": 1, "Valuto e agisco": 3, "Il rischio è il mio elemento": 5 }
+            }
+        ];
+
+        let indice = 0;
+
+        function avviaRichmond() {
+            document.getElementById('title').style.display = 'none';
+            document.getElementById('subtitle').style.display = 'none';
+            document.querySelector('.symbol').style.display = 'none';
+            mostraDomanda();
+        }
+
+        function mostraDomanda() {
+            const container = document.getElementById('main-container');
+            const d = domande[indice];
+            let html = `<h2 style="margin-bottom:30px;">${d.testo}</h2>`;
+            for (let opzione in d.opzioni) {
+                html += `<button onclick="gestisciRisposta(${d.opzioni[opzione]})">${opzione}</button>`;
+            }
+            container.innerHTML = html;
+        }
+
+        function gestisciRisposta(peso) {
+            indice++;
+            if (indice < domande.length) {
+                mostraDomanda();
+            } else {
+                document.getElementById('main-container').innerHTML = "<h1>VIAGGIO CONCLUSO</h1>";
+            }
+        }
+    </script>
+</body>
+</html><script>
     // 1. Definiamo le domande direttamente nello script per bypassare il blocco fetch/CORS 
     // se non sei su un server locale professionale, poi passeremo al JSON esterno.
     const domande = [
