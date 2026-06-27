@@ -5,6 +5,40 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>RICHMOND</title>
     <style>
+        <script>
+    // Carica il file JSON e avvia il primo step
+    let domande = [];
+
+    async function avviaRichmond() {
+        try {
+            const response = await fetch('domande_sistema.json');
+            domande = await response.json();
+            
+            // Nascondi le scritte iniziali
+            document.querySelector('h1').classList.add('hidden');
+            document.querySelector('p').classList.add('hidden');
+            
+            // Mostra la prima domanda
+            mostraDomanda(domande[0]); 
+        } catch (e) {
+            console.error("Errore nel caricamento del JSON:", e);
+        }
+    }
+
+    function mostraDomanda(domanda) {
+        let container = document.querySelector('body');
+        let html = `<h2>${domanda.testo}</h2>`;
+        
+        for (let opzione in domanda.opzioni) {
+            html += `<button onclick="console.log('Scelto: ${opzione}')">${opzione}</button>`;
+        }
+        container.innerHTML = html;
+    }
+
+    // Collega l'evento al tuo simbolo del timone (⚓)
+    document.querySelector('.symbol').style.cursor = "pointer";
+    document.querySelector('.symbol').addEventListener('click', avviaRichmond);
+</script>
         body {
             margin: 0;
             background-color: #050505; /* Nero profondo */
