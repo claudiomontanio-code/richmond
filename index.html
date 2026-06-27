@@ -1,4 +1,68 @@
-<!DOCTYPE html>
+<script>
+    // 1. Definiamo le domande direttamente nello script per bypassare il blocco fetch/CORS 
+    // se non sei su un server locale professionale, poi passeremo al JSON esterno.
+    const domande = [
+        {
+            "id": 1,
+            "testo": "Cosa rappresenta per te il denaro?",
+            "opzioni": {
+                "Solo un mezzo per comprare il necessario": 1,
+                "Un termometro della propria efficacia": 3,
+                "La libertà assoluta di plasmare la realtà": 5
+            }
+        },
+        {
+            "id": 2,
+            "testo": "Di fronte a un'opportunità ad alto rischio, come reagisci?",
+            "opzioni": {
+                "Cerco rassicurazioni e sicurezze": 1,
+                "Valuto le variabili e procedo": 3,
+                "Il rischio è il mio ambiente naturale": 5
+            }
+        }
+    ];
+
+    let indiceDomanda = 0;
+
+    function avviaRichmond() {
+        const box = document.getElementById('question-box');
+        if (!box) return;
+        
+        // Sostituiamo il contenuto
+        mostraDomanda(domande[indiceDomanda]);
+    }
+
+    function mostraDomanda(d) {
+        const box = document.getElementById('question-box');
+        let html = `<h2 style="color:white; margin-bottom:20px;">${d.testo}</h2>`;
+        
+        for (let testoOpzione in d.opzioni) {
+            html += `<button onclick="gestisciRisposta(${d.opzioni[testoOpzione]})" 
+                     style="display:block; width:100%; margin:10px 0; padding:15px; cursor:pointer; background:#1a1a1a; color:#d4af37; border:1px solid #d4af37;">
+                     ${testoOpzione}</button>`;
+        }
+        box.innerHTML = html;
+    }
+
+    function gestisciRisposta(peso) {
+        console.log("Peso selezionato:", peso);
+        indiceDomanda++;
+        if (indiceDomanda < domande.length) {
+            mostraDomanda(domande[indiceDomanda]);
+        } else {
+            document.getElementById('question-box').innerHTML = "<h1 style='color:#d4af37;'>VIAGGIO CONCLUSO</h1>";
+        }
+    }
+
+    // Event listener corretto per l'ancora
+    document.addEventListener('DOMContentLoaded', () => {
+        const simbolo = document.querySelector('.symbol');
+        if (simbolo) {
+            simbolo.style.cursor = "pointer";
+            simbolo.addEventListener('click', avviaRichmond);
+        }
+    });
+</script><!DOCTYPE html>
 <html lang="it">
 <head>
     <meta charset="UTF-8">
