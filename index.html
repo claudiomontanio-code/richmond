@@ -2,6 +2,87 @@
 <html lang="it">
 <head>
     <meta charset="UTF-8">
+    <title>Richmond - Sistema di Navigazione</title>
+    <style>
+        body { margin: 0; overflow: hidden; background-color: #000; font-family: sans-serif; }
+        #canvas-container { width: 100vw; height: 100vh; }
+        #ui { position: absolute; top: 20px; left: 20px; color: white; z-index: 10; }
+        button { padding: 10px 20px; cursor: pointer; }
+    </style>
+</head>
+<body>
+
+<div id="ui">
+    <h1>Richmond</h1>
+    <button onclick="window.aggiornaMondo(5)">Modalità Sicura (Verde)</button>
+    <button onclick="window.aggiornaMondo(1)">Modalità Allerta (Rosso)</button>
+    <button onclick="window.aggiornaMondo(0)">Reset (Oro)</button>
+</div>
+<div id="canvas-container"></div>
+
+<script type="module">
+    import * as THREE from 'https://unpkg.com/three@0.150.0/build/three.module.js';
+    import { GLTFLoader } from 'https://unpkg.com/three@0.150.0/examples/jsm/loaders/GLTFLoader.js';
+
+    // Inizializzazione Scena
+    const scene = new THREE.Scene();
+    const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+    const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    document.getElementById('canvas-container').appendChild(renderer.domElement);
+
+    // Illuminazione
+    const light = new THREE.DirectionalLight(0xffffff, 1.5);
+    light.position.set(2, 2, 5);
+    scene.add(light);
+    scene.add(new THREE.AmbientLight(0xffffff, 0.8));
+    
+    camera.position.z = 5;
+
+    let timone = null;
+
+    // Caricamento Modello
+    const loader = new GLTFLoader();
+    loader.load('./timone-mare-aureo.glb', (gltf) => {
+        timone = gltf.scene;
+        scene.add(timone);
+    });
+
+    // Loop di animazione
+    function animate() {
+        requestAnimationFrame(animate);
+        if (timone) {
+            timone.rotation.y += 0.005;
+            timone.rotation.z = Math.sin(Date.now() * 0.001) * 0.1;
+        }
+        renderer.render(scene, camera);
+    }
+    animate();
+
+    // Funzione di controllo esterna
+    window.aggiornaMondo = (peso) => {
+        if (!timone) return;
+        timone.traverse((child) => {
+            if (child.isMesh) {
+                if (peso === 5) child.material.color.set(0x00ff00);
+                else if (peso === 1) child.material.color.set(0xff0000);
+                else child.material.color.set(0xd4af37);
+            }
+        });
+    };
+
+    // Gestione ridimensionamento finestra
+    window.addEventListener('resize', () => {
+        camera.aspect = window.innerWidth / window.innerHeight;
+        camera.updateProjectionMatrix();
+        renderer.setSize(window.innerWidth, window.innerHeight);
+    });
+</script>
+</body>
+</html><!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
     <title>RICHMOND | The Selection</title>
     <style>
         body { margin: 0; background-color: #050505; color: #d4af37; font-family: 'Times New Roman', serif; overflow: hidden; }
