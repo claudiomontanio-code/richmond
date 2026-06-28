@@ -2,532 +2,89 @@
 <html lang="it">
 <head>
     <meta charset="UTF-8">
-    <title>Richmond - Sistema di Navigazione</title>
+    <title>RICHMOND | The Selection</title>
     <style>
-        body { margin: 0; overflow: hidden; background-color: #000; font-family: sans-serif; }
-        #canvas-container { width: 100vw; height: 100vh; }
-        #ui { position: absolute; top: 20px; left: 20px; color: white; z-index: 10; }
-        button { padding: 10px 20px; cursor: pointer; }
+        body { margin: 0; background-color: #000; color: #d4af37; font-family: 'Times New Roman', serif; overflow: hidden; }
+        #canvas-container { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 0; }
+        #ui-layer { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 90%; max-width: 400px; text-align: center; z-index: 1; }
+        .hidden { display: none; }
+        button { display: block; width: 100%; margin: 10px 0; padding: 15px; background: #000; color: #d4af37; border: 1px solid #d4af37; cursor: pointer; }
+        button:hover { background: #d4af37; color: #000; }
     </style>
 </head>
 <body>
+    <div id="canvas-container"></div>
+    <div id="ui-layer">
+        <div id="start-view">
+            <h1 onclick="start()" style="cursor:pointer">RICHMOND</h1>
+            <p>IL TIMONE È IL DESTINO.</p>
+        </div>
+        <div id="game-view" class="hidden">
+            <h2 id="q-text"></h2>
+            <div id="btn-container"></div>
+        </div>
+    </div>
 
-<div id="ui">
-    <h1>Richmond</h1>
-    <button onclick="window.aggiornaMondo(5)">Modalità Sicura (Verde)</button>
-    <button onclick="window.aggiornaMondo(1)">Modalità Allerta (Rosso)</button>
-    <button onclick="window.aggiornaMondo(0)">Reset (Oro)</button>
-</div>
-<div id="canvas-container"></div>
+    <script type="module">
+        import * as THREE from 'https://unpkg.com/three@0.150.0/build/three.module.js';
+        import { GLTFLoader } from 'https://unpkg.com/three@0.150.0/examples/jsm/loaders/GLTFLoader.js';
 
-<script type="module">
-    import * as THREE from 'https://unpkg.com/three@0.150.0/build/three.module.js';
-    import { GLTFLoader } from 'https://unpkg.com/three@0.150.0/examples/jsm/loaders/GLTFLoader.js';
+        const scene = new THREE.Scene();
+        const camera = new THREE.PerspectiveCamera(75, window.innerWidth/window.innerHeight, 0.1, 1000);
+        const renderer = new THREE.WebGLRenderer({alpha:true, antialias:true});
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        document.getElementById('canvas-container').appendChild(renderer.domElement);
+        scene.add(new THREE.AmbientLight(0xffffff, 1));
+        camera.position.z = 5;
 
-    // Inizializzazione Scena
-    const scene = new THREE.Scene();
-    const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-    const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
-    renderer.setSize(window.innerWidth, window.innerHeight);
-    document.getElementById('canvas-container').appendChild(renderer.domElement);
-
-    // Illuminazione
-    const light = new THREE.DirectionalLight(0xffffff, 1.5);
-    light.position.set(2, 2, 5);
-    scene.add(light);
-    scene.add(new THREE.AmbientLight(0xffffff, 0.8));
-    
-    camera.position.z = 5;
-
-    let timone = null;
-
-    // Caricamento Modello
-    const loader = new GLTFLoader();
-    loader.load('./timone-mare-aureo.glb', (gltf) => {
-        timone = gltf.scene;
-        scene.add(timone);
-    });
-
-    // Loop di animazione
-    function animate() {
-        requestAnimationFrame(animate);
-        if (timone) {
-            timone.rotation.y += 0.005;
-            timone.rotation.z = Math.sin(Date.now() * 0.001) * 0.1;
-        }
-        renderer.render(scene, camera);
-    }
-    animate();
-
-    // Funzione di controllo esterna
-    window.aggiornaMondo = (peso) => {
-        if (!timone) return;
-        timone.traverse((child) => {
-            if (child.isMesh) {
-                if (peso === 5) child.material.color.set(0x00ff00);
-                else if (peso === 1) child.material.color.set(0xff0000);
-                else child.material.color.set(0xd4af37);
-            }
+        let timone = null;
+        new GLTFLoader().load('./timone-mare-aureo.glb', (gltf) => {
+            timone = gltf.scene;
+            scene.add(timone);
         });
-    };
-
-    // Gestione ridimensionamento finestra
-    window.addEventListener('resize', () => {
-        camera.aspect = window.innerWidth / window.innerHeight;
-        camera.updateProjectionMatrix();
-        renderer.setSize(window.innerWidth, window.innerHeight);
-    });
-</script>
-</body>
-</html><!DOCTYPE html>
-<html lang="it">
-<head>
-    <meta charset="UTF-8">
-    <title>RICHMOND | The Selection</title>
-    <style>
-        body { margin: 0; background-color: #050505; color: #d4af37; font-family: 'Times New Roman', serif; overflow: hidden; }
-        #canvas-container { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 0; }
-        #main-container { 
-            position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
-            width: 90%; max-width: 500px; text-align: center; z-index: 1;
-        }
-        .symbol { font-size: 4rem; cursor: pointer; margin-bottom: 20px; transition: 0.3s; }
-        .symbol:hover { transform: scale(1.1); }
-        button { display: block; width: 100%; margin: 10px 0; padding: 15px; background: rgba(0,0,0,0.8); color: #d4af37; border: 1px solid #d4af37; cursor: pointer; font-size: 1rem; }
-        button:hover { background: #d4af37; color: #000; }
-    </style>
-</head>
-<body>
-    <div id="canvas-container"></div>
-    <div id="main-container">
-        <div id="start-screen">
-            <div class="symbol" onclick="iniziaSelezione()">⚓</div>
-            <h1>RICHMOND</h1>
-            <p>IL TIMONE È IL DESTINO.</p>
-        </div>
-    </div>
-
-    <script type="module">
-        import * as THREE from 'https://unpkg.com/three@0.150.0/build/three.module.js';
-        const scene = new THREE.Scene();
-        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-        const renderer = new THREE.WebGLRenderer({ alpha: true });
-        renderer.setSize(window.innerWidth, window.innerHeight);
-        document.getElementById('canvas-container').appendChild(renderer.domElement);
-        const light = new THREE.DirectionalLight(0xffffff, 1);
-        light.position.set(1, 1, 1);
-        scene.add(light);
-        camera.position.z = 5;
-        const geometry = new THREE.TorusKnotGeometry(1, 0.3, 100, 16);
-        const material = new THREE.MeshStandardMaterial({ color: 0xd4af37 });
-        const timone = new THREE.Mesh(geometry, material);
-        scene.add(timone);
-        function animate() { requestAnimationFrame(animate); timone.rotation.y += 0.005; renderer.render(scene, camera); }
-        animate();
-        window.aggiornaMondo = (p) => material.color.setHex(p === 5 ? 0x00ff00 : (p === 1 ? 0xff0000 : 0xd4af37));
-    </script>
-
-    <script>
-        const poolDomande = Array.from({length: 100}, (_, i) => ({
-            t: `Domanda #${i+1}: La tua visione del successo?`, o: {"Base": 1, "Media": 3, "Elite": 5}
-        }));
-        let estratte = [], indice = 0, punteggio = 0;
-
-        window.iniziaSelezione = () => {
-            estratte = poolDomande.sort(() => 0.5 - Math.random()).slice(0, 3);
-            document.getElementById('start-screen').remove();
-            mostraDomanda();
-        }
-
-        function mostraDomanda() {
-            const container = document.getElementById('main-container');
-            const d = estratte[indice];
-            container.innerHTML = `<h2>${d.t}</h2>` + 
-                Object.entries(d.o).map(([k, v]) => `<button onclick="gestisci(${v})">${k}</button>`).join('');
-        }
-
-        window.gestisci = (peso) => {
-            if (indice === 0 && peso === 1) { document.getElementById('main-container').innerHTML = "<h1>NAUFRAGIO</h1>"; return; }
-            punteggio += peso; indice++;
-            window.aggiornaMondo(peso);
-            if (indice < 3) mostraDomanda();
-            else document.getElementById('main-container').innerHTML = `<h1>CONCLUSO</h1><p>Risultato: ${punteggio}</p>`;
-        }
-    </script>
-</body>
-</html><!DOCTYPE html>
-<html lang="it">
-<head>
-    <meta charset="UTF-8">
-    <title>RICHMOND | The Selection</title>
-    <style>
-        body { margin: 0; background-color: #050505; color: #d4af37; font-family: 'Times New Roman', serif; overflow: hidden; }
-        #canvas-container { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 0; }
-        #main-container { 
-            position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
-            width: 90%; max-width: 500px; text-align: center; z-index: 1;
-        }
-        .symbol { font-size: 4rem; cursor: pointer; margin-bottom: 20px; transition: 0.3s; }
-        .symbol:hover { transform: scale(1.1); }
-        button { display: block; width: 100%; margin: 10px 0; padding: 15px; background: rgba(0,0,0,0.8); color: #d4af37; border: 1px solid #d4af37; cursor: pointer; font-size: 1rem; }
-        button:hover { background: #d4af37; color: #000; }
-    </style>
-</head>
-<body>
-    <div id="canvas-container"></div>
-    <div id="main-container">
-        <div id="start-screen">
-            <div class="symbol" onclick="iniziaSelezione()">⚓</div>
-            <h1>RICHMOND</h1>
-            <p>IL TIMONE È IL DESTINO.</p>
-        </div>
-    </div>
-
-    <script type="module">
-        import * as THREE from 'https://unpkg.com/three@0.150.0/build/three.module.js';
-        const scene = new THREE.Scene();
-        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-        const renderer = new THREE.WebGLRenderer({ alpha: true });
-        renderer.setSize(window.innerWidth, window.innerHeight);
-        document.getElementById('canvas-container').appendChild(renderer.domElement);
-        const light = new THREE.DirectionalLight(0xffffff, 1);
-        light.position.set(1, 1, 1);
-        scene.add(light);
-        camera.position.z = 5;
-        const geometry = new THREE.TorusKnotGeometry(1, 0.3, 100, 16);
-        const material = new THREE.MeshStandardMaterial({ color: 0xd4af37 });
-        const timone = new THREE.Mesh(geometry, material);
-        scene.add(timone);
-        function animate() { requestAnimationFrame(animate); timone.rotation.y += 0.005; renderer.render(scene, camera); }
-        animate();
-        window.aggiornaMondo = (p) => material.color.setHex(p === 5 ? 0x00ff00 : (p === 1 ? 0xff0000 : 0xd4af37));
-    </script>
-
-    <script>
-        const poolDomande = Array.from({length: 100}, (_, i) => ({
-            t: `Domanda #${i+1}: La tua visione del successo?`, o: {"Base": 1, "Media": 3, "Elite": 5}
-        }));
-        let estratte = [], indice = 0, punteggio = 0;
-
-        window.iniziaSelezione = () => {
-            estratte = poolDomande.sort(() => 0.5 - Math.random()).slice(0, 3);
-            document.getElementById('start-screen').remove();
-            mostraDomanda();
-        }
-
-        function mostraDomanda() {
-            const container = document.getElementById('main-container');
-            const d = estratte[indice];
-            container.innerHTML = `<h2>${d.t}</h2>` + 
-                Object.entries(d.o).map(([k, v]) => `<button onclick="gestisci(${v})">${k}</button>`).join('');
-        }
-
-        window.gestisci = (peso) => {
-            if (indice === 0 && peso === 1) { document.getElementById('main-container').innerHTML = "<h1>NAUFRAGIO</h1>"; return; }
-            punteggio += peso; indice++;
-            window.aggiornaMondo(peso);
-            if (indice < 3) mostraDomanda();
-            else document.getElementById('main-container').innerHTML = `<h1>CONCLUSO</h1><p>Risultato: ${punteggio}</p>`;
-        }
-    </script>
-</body>
-</html><!DOCTYPE html>
-<html lang="it">
-<head>
-    <meta charset="UTF-8">
-    <title>RICHMOND | The Selection</title>
-    <style>
-        body { margin: 0; background-color: #050505; color: #d4af37; font-family: 'Times New Roman', serif; overflow: hidden; }
-        #canvas-container { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 0; }
-        #main-container { position: relative; z-index: 1; display: flex; flex-direction: column; justify-content: center; align-items: center; height: 100vh; text-align: center; }
-        .symbol { font-size: 4rem; cursor: pointer; margin-bottom: 20px; }
-        button { display: block; width: 320px; margin: 8px; padding: 12px; background: rgba(0,0,0,0.8); color: #d4af37; border: 1px solid #d4af37; cursor: pointer; transition: 0.3s; }
-        button:hover { background: #d4af37; color: #000; }
-    </style>
-</head>
-<body>
-
-    <div id="canvas-container"></div>
-    <div id="main-container">
-        <div class="symbol" onclick="iniziaSelezione()">⚓</div>
-        <h1 id="title">RICHMOND</h1>
-        <p id="subtitle">IL TIMONE È IL DESTINO.</p>
-    </div>
-
-    <script type="module">
-        import * as THREE from 'https://unpkg.com/three@0.150.0/build/three.module.js';
-        const scene = new THREE.Scene();
-        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-        const renderer = new THREE.WebGLRenderer({ alpha: true });
-        renderer.setSize(window.innerWidth, window.innerHeight);
-        document.getElementById('canvas-container').appendChild(renderer.domElement);
-        const light = new THREE.DirectionalLight(0xffffff, 1);
-        light.position.set(1, 1, 1);
-        scene.add(light);
-        camera.position.z = 5;
-        const geometry = new THREE.TorusKnotGeometry(1, 0.3, 100, 16);
-        const material = new THREE.MeshStandardMaterial({ color: 0xd4af37 });
-        const timone = new THREE.Mesh(geometry, material);
-        scene.add(timone);
-        function animate() { requestAnimationFrame(animate); timone.rotation.x += 0.005; timone.rotation.y += 0.005; renderer.render(scene, camera); }
-        animate();
-        window.aggiornaMondo = function(peso) { material.color.setHex(peso === 5 ? 0x00ff00 : (peso === 1 ? 0xff0000 : 0xd4af37)); };
-    </script>
-
-    <script>
-        const poolDomande = Array.from({length: 100}, (_, i) => ({
-            t: `Domanda #${i+1}: La tua visione del successo?`,
-            o: {"Base": 1, "Media": 3, "Elite": 5}
-        }));
-
-        let estratte = [], indice = 0, punteggio = 0;
-        window.iniziaSelezione = () => {
-            estratte = poolDomande.sort(() => 0.5 - Math.random()).slice(0, 3);
-            document.getElementById('main-container').innerHTML = "";
-            mostraDomanda();
-        }
-        function mostraDomanda() {
-            const d = estratte[indice];
-            let html = `<h2>${d.t}</h2>`;
-            for (let k in d.o) html += `<button onclick="gestisciRisposta(${d.o[k]})">${k}</button>`;
-            document.getElementById('main-container').innerHTML = html;
-        }
-        window.gestisciRisposta = (peso) => {
-            if (indice === 0 && peso === 1) { document.getElementById('main-container').innerHTML = "<h1>NAUFRAGIO</h1>"; return; }
-            punteggio += peso; indice++;
-            window.aggiornaMondo(peso);
-            if (indice < 3) mostraDomanda();
-            else document.getElementById('main-container').innerHTML = `<h1>CONCLUSO</h1><p>Risultato: ${punteggio}</p>`;
-        }
-    </script>
-</body>
-</html><!DOCTYPE html>
-<html lang="it">
-<head>
-    <meta charset="UTF-8">
-    <title>RICHMOND | The Selection</title>
-    <style>
-        body { margin: 0; background-color: #050505; color: #d4af37; font-family: 'Times New Roman', serif; overflow: hidden; }
-        #canvas-container { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 0; }
-        #main-container { position: relative; z-index: 1; display: flex; flex-direction: column; justify-content: center; align-items: center; height: 100vh; text-align: center; }
-        .symbol { font-size: 4rem; cursor: pointer; margin-bottom: 20px; }
-        button { display: block; width: 300px; margin: 10px; padding: 15px; background: rgba(0,0,0,0.7); color: #d4af37; border: 1px solid #d4af37; cursor: pointer; transition: 0.3s; }
-        button:hover { background: #d4af37; color: #000; }
-    </style>
-</head>
-<body>
-
-    <div id="canvas-container"></div>
-    <div id="main-container">
-        <div class="symbol" onclick="iniziaSelezione()">⚓</div>
-        <h1 id="title">RICHMOND</h1>
-        <p id="subtitle">IL TIMONE È IL DESTINO.</p>
-    </div>
-
-    <script type="module">
-        import * as THREE from 'https://unpkg.com/three@0.150.0/build/three.module.js';
-
-        const scene = new THREE.Scene();
-        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-        const renderer = new THREE.WebGLRenderer({ alpha: true });
-        renderer.setSize(window.innerWidth, window.innerHeight);
-        document.getElementById('canvas-container').appendChild(renderer.domElement);
-
-        const light = new THREE.DirectionalLight(0xffffff, 1);
-        light.position.set(1, 1, 1);
-        scene.add(light);
-        camera.position.z = 5;
-
-        const geometry = new THREE.TorusKnotGeometry(1, 0.3, 100, 16);
-        const material = new THREE.MeshStandardMaterial({ color: 0xd4af37 });
-        const timone = new THREE.Mesh(geometry, material);
-        scene.add(timone);
 
         function animate() {
             requestAnimationFrame(animate);
-            timone.rotation.x += 0.005;
-            timone.rotation.y += 0.005;
+            if(timone) timone.rotation.y += 0.005;
             renderer.render(scene, camera);
         }
         animate();
 
-        // Esponiamo la funzione per cambiare colore al mondo 3D
-        window.aggiornaMondo = function(peso) {
-            const colore = peso === 5 ? 0x00ff00 : (peso === 1 ? 0xff0000 : 0xd4af37);
-            material.color.setHex(colore);
+        window.updateColor = (p) => {
+            if(!timone) return;
+            timone.traverse(c => { if(c.isMesh) c.material.color.setHex(p === 5 ? 0x00ff00 : (p === 1 ? 0xff0000 : 0xd4af37)); });
         };
     </script>
 
     <script>
-        const poolDomande = [
-            { t: "Cosa rappresenta per te il denaro?", o: {"Mezzo": 1, "Misura": 3, "Potere": 5} },
-            { t: "Di fronte al rischio?", o: {"Sicurezza": 1, "Valuto": 3, "Elemento mio": 5} }
-        ];
-        
-        let indice = 0;
+        const pool = Array.from({length: 100}, (_, i) => ({t: `Domanda #${i+1}: La tua visione del successo?`, o: {"Base": 1, "Media": 3, "Elite": 5}}));
+        let q = [], idx = 0, pTot = 0;
 
-        window.iniziaSelezione = function() {
-            document.getElementById('title').style.display = 'none';
-            document.getElementById('subtitle').style.display = 'none';
-            document.querySelector('.symbol').style.display = 'none';
-            mostraDomanda();
+        window.start = () => {
+            q = pool.sort(() => 0.5 - Math.random()).slice(0, 3);
+            document.getElementById('start-view').classList.add('hidden');
+            document.getElementById('game-view').classList.remove('hidden');
+            renderQ();
+        };
+
+        function renderQ() {
+            document.getElementById('q-text').innerText = q[idx].t;
+            const b = document.getElementById('btn-container');
+            b.innerHTML = '';
+            Object.entries(q[idx].o).forEach(([k, v]) => {
+                const btn = document.createElement('button');
+                btn.innerText = k;
+                btn.onclick = () => handle(v);
+                b.appendChild(btn);
+            });
         }
 
-        function mostraDomanda() {
-            const container = document.getElementById('main-container');
-            const d = poolDomande[indice];
-            let html = `<h2>${d.t}</h2>`;
-            for (let k in d.o) html += `<button onclick="gestisciRisposta(${d.o[k]})">${k}</button>`;
-            container.innerHTML = html;
-        }
-
-        window.gestisciRisposta = function(peso) {
-            window.aggiornaMondo(peso); // Cambia il colore del 3D
-            indice++;
-            if (indice < poolDomande.length) mostraDomanda();
-            else document.getElementById('main-container').innerHTML = "<h1>VIAGGIO CONCLUSO</h1>";
-        }
-    </script>
-</body>
-</html><!DOCTYPE html>
-<html lang="it">
-<head>
-    <meta charset="UTF-8">
-    <title>RICHMOND | The Selection</title>
-    <style>
-        body { margin: 0; background-color: #050505; color: #d4af37; font-family: 'Times New Roman', serif; overflow: hidden; }
-        #canvas-container { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 0; }
-        #main-container { position: relative; z-index: 1; display: flex; flex-direction: column; justify-content: center; align-items: center; height: 100vh; text-align: center; }
-        .symbol { font-size: 4rem; cursor: pointer; margin-bottom: 20px; }
-        button { display: block; width: 300px; margin: 10px; padding: 15px; background: rgba(0,0,0,0.7); color: #d4af37; border: 1px solid #d4af37; cursor: pointer; }
-    </style>
-</head>
-<body>
-
-    <div id="canvas-container"></div>
-    <div id="main-container">
-        <div class="symbol" onclick="iniziaSelezione()">⚓</div>
-        <h1 id="title">RICHMOND</h1>
-        <p id="subtitle">IL TIMONE È IL DESTINO.</p>
-    </div>
-
-    <script type="module">
-        import * as THREE from 'https://unpkg.com/three@0.150.0/build/three.module.js';
-
-        // Configurazione Mondo 3D
-        const scene = new THREE.Scene();
-        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-        const renderer = new THREE.WebGLRenderer({ alpha: true });
-        renderer.setSize(window.innerWidth, window.innerHeight);
-        document.getElementById('canvas-container').appendChild(renderer.domElement);
-
-        // Luce e base 3D
-        const light = new THREE.DirectionalLight(0xffffff, 1);
-        light.position.set(1, 1, 1);
-        scene.add(light);
-        camera.position.z = 5;
-
-        // Geometria di prova (Il Timone)
-        const geometry = new THREE.TorusKnotGeometry(1, 0.3, 100, 16);
-        const material = new THREE.MeshStandardMaterial({ color: 0xd4af37 });
-        const timone = new THREE.Mesh(geometry, material);
-        scene.add(timone);
-
-        function animate() {
-            requestAnimationFrame(animate);
-            timone.rotation.x += 0.01;
-            timone.rotation.y += 0.01;
-            renderer.render(scene, camera);
-        }
-        animate();
-    </script>
-
-    <script>
-        // Logica Richmond invariata
-        const poolDomande = [
-            { t: "Cosa rappresenta per te il denaro?", o: {"Mezzo necessario": 1, "Misura di efficacia": 3, "Potere di plasmare la realtà": 5} }
-        ];
-        
-        window.iniziaSelezione = function() {
-            document.getElementById('title').style.display = 'none';
-            document.getElementById('subtitle').style.display = 'none';
-            document.querySelector('.symbol').style.display = 'none';
-            mostraDomanda();
-        }
-
-        function mostraDomanda() {
-            const container = document.getElementById('main-container');
-            const d = poolDomande[0];
-            let html = `<h2>${d.t}</h2>`;
-            for (let k in d.o) html += `<button onclick="alert('Peso scelto: ${d.o[k]}')">${k}</button>`;
-            container.innerHTML = html;
-        }
-    </script>
-</body>
-</html><!DOCTYPE html>
-<html lang="it">
-<head>
-    <meta charset="UTF-8">
-    <title>RICHMOND | The Selection</title>
-    <style>
-        body { margin: 0; background-color: #050505; color: #d4af37; font-family: 'Times New Roman', serif; display: flex; flex-direction: column; justify-content: center; align-items: center; height: 100vh; text-align: center; }
-        #main-container { width: 80%; max-width: 600px; }
-        .symbol { font-size: 4rem; cursor: pointer; margin-bottom: 20px; transition: transform 0.3s; }
-        .symbol:hover { transform: scale(1.1); }
-        button { display: block; width: 100%; margin: 12px 0; padding: 18px; background: #111; color: #d4af37; border: 1px solid #d4af37; cursor: pointer; font-size: 1.1rem; transition: 0.3s; }
-        button:hover { background: #d4af37; color: #000; }
-        h1, h2 { text-transform: uppercase; letter-spacing: 0.2rem; }
-    </style>
-</head>
-<body>
-
-    <div id="main-container">
-        <div class="symbol" onclick="iniziaSelezione()">⚓</div>
-        <h1 id="title">RICHMOND</h1>
-        <p id="subtitle">IL TIMONE È IL DESTINO.</p>
-    </div>
-
-    <script>
-        const poolDomande = [
-            { t: "Cosa rappresenta per te il denaro?", o: {"Mezzo necessario": 1, "Misura di efficacia": 3, "Potere di plasmare la realtà": 5} },
-            { t: "Di fronte al rischio, come reagisci?", o: {"Cerco sicurezza": 1, "Valuto e agisco": 3, "Il rischio è il mio elemento": 5} },
-            { t: "Cosa provi guardando un'opera d'arte?", o: {"Nulla di particolare": 1, "Apprezzo l'estetica": 3, "Analizzo il valore e la storia": 5} },
-            { t: "La solitudine è per te...", o: {"Una paura": 1, "Un momento di pausa": 3, "Il mio stato naturale": 5} },
-            { t: "Cosa cerchi nelle relazioni?", o: {"Conferme": 1, "Collaborazione": 3, "Affinità di visione": 5} }
-        ];
-
-        let domandeEstratte = [];
-        let indice = 0;
-        let punteggio = 0;
-
-        function iniziaSelezione() {
-            domandeEstratte = poolDomande.sort(() => 0.5 - Math.random()).slice(0, 3);
-            document.getElementById('main-container').innerHTML = "";
-            mostraStep();
-        }
-
-        function mostraStep() {
-            const d = domandeEstratte[indice];
-            let html = `<h2>Fase ${indice + 1}/3</h2><p>${d.t}</p>`;
-            for (let k in d.o) html += `<button onclick="rispondi(${d.o[k]})">${k}</button>`;
-            document.getElementById('main-container').innerHTML = html;
-        }
-
-        function rispondi(peso) {
-            if (indice === 0 && peso === 1) {
-                document.getElementById('main-container').innerHTML = "<h1>NAUFRAGIO</h1><p>Non hai il piglio del comandante. Sei fuori.</p>";
-                return;
-            }
-            punteggio += peso;
-            indice++;
-            if (indice < 3) mostraStep();
-            else verdetto();
-        }
-
-        function verdetto() {
-            let msg = (punteggio >= 11) ? "<h1>BENVENUTO A RICHMOND</h1>" : "<h1>ACQUE COMUNI</h1>";
-            document.getElementById('main-container').innerHTML = msg + `<p>Risultato finale: ${punteggio}</p>`;
-        }
+        window.handle = (p) => {
+            window.updateColor(p);
+            if (idx === 0 && p === 1) { document.getElementById('ui-layer').innerHTML = "<h1>NAUFRAGIO</h1>"; return; }
+            pTot += p; idx++;
+            idx < 3 ? renderQ() : (document.getElementById('ui-layer').innerHTML = `<h1>VIAGGIO CONCLUSO</h1><p>Risultato: ${pTot}</p>`);
+        };
     </script>
 </body>
 </html>
